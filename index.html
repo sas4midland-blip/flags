@@ -55,15 +55,15 @@
     #undo-timer-circle { stroke-dasharray: 75.4; stroke-dashoffset: 0; transition: stroke-dashoffset linear; }
     #undo-btn { background: var(--theme-color); color: #000; border: none; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
     main { flex: 1; padding: 20px 16px; max-width: 440px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; }
-    #setup-screen, #customer-screen { justify-content: center; }
+    #auth-screen, #setup-screen, #customer-screen { justify-content: center; }
     .setup-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; position: relative; overflow: hidden; }
     .setup-card::before { content: 'FIELD'; position: absolute; top: -10px; right: -8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 72px; color: var(--faint); letter-spacing: -0.02em; pointer-events: none; line-height: 1; opacity: 0.5; }
     .setup-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--theme-color); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; }
     .setup-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 32px; color: var(--text); letter-spacing: 0.02em; text-transform: uppercase; line-height: 1; margin-bottom: 4px; }
     .setup-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; font-weight: 500; }
     label.field-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; margin-top: 12px; }
-    select, textarea, input[type="text"], input[type="number"] { width: 100%; background: var(--bg); border: 1px solid var(--border-bright); border-radius: 8px; color: var(--text); font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 15px; padding: 12px 14px; appearance: none; -webkit-appearance: none; transition: border-color 0.15s; outline: none; }
-    select:focus, textarea:focus, input[type="text"]:focus, input[type="number"]:focus { border-color: var(--theme-color); }
+    select, textarea, input[type="text"], input[type="number"], input[type="password"] { width: 100%; background: var(--bg); border: 1px solid var(--border-bright); border-radius: 8px; color: var(--text); font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 15px; padding: 12px 14px; appearance: none; -webkit-appearance: none; transition: border-color 0.15s; outline: none; }
+    select:focus, textarea:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus { border-color: var(--theme-color); }
     select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b78' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer; }
     .mode-toggle-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
     .mode-btn { background: var(--bg); border: 1px solid var(--border-bright); border-radius: 8px; padding: 12px; text-align: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; color: var(--muted); cursor: pointer; }
@@ -156,7 +156,21 @@
 </head>
 <body>
 
-  <header>
+  <main id="auth-screen" style="display: none;">
+    <div class="setup-card">
+      <div class="setup-eyebrow">Security Check</div>
+      <div class="setup-title">System Gate</div>
+      <div class="setup-sub">Enter passcode to pull logistics ledger</div>
+      
+      <label class="field-label">System Password</label>
+      <input type="password" id="auth-password" placeholder="••••••••" style="margin-bottom: 14px;">
+      <div id="auth-error-msg" style="color: var(--red); font-size: 12px; font-weight: 600; margin-top: -6px; margin-bottom: 14px; display: none;">❌ Access Refused: Invalid Credentials</div>
+      
+      <button onclick="handleAuthVerification()" class="btn-primary">Unlock Operations →</button>
+    </div>
+  </main>
+
+  <header id="app-header" style="display: none;">
     <div class="header-logo" id="header-brand">Flag Ops</div>
     <div class="header-right">
       <span id="sync-pill" class="sync-pill sync-ok">☁ Connected</span>
@@ -167,7 +181,7 @@
   <div id="progress-bar-wrap"><div id="progress-bar-fill"></div></div>
   <div id="error-banner"><span id="error-msg"></span><button onclick="dismissError()">✕</button></div>
 
-  <main id="setup-screen">
+  <main id="setup-screen" style="display: none;">
     <div class="setup-card">
       <div class="setup-eyebrow">Operational Context</div>
       <div class="setup-title">Configure Mission</div>
@@ -337,7 +351,7 @@
 
   <script>
     // ⚠️ PASTE YOUR COPIED GOOGLE APPS SCRIPT WEB APP URL BETWEEN THESE QUOTES:
-    const API_URL = "https://script.google.com/macros/s/AKfycbzz9FhWbq2B2y4dc8W9TVPvJbJmioGb-ptzjW7CJWjB1BgLNuSGep2SdLn5sVh7aL2uCQ/exec"; 
+    const API_URL = "YOUR_SCRIPT_WEB_APP_URL"; 
 
     let rawRouteData = [];
     let activeFilteredRoute = [];
@@ -349,9 +363,42 @@
 
     window.onload = function() {
       if(API_URL.includes("YOUR_SCRIPT_WEB_APP_URL")) {
-        alert("Setup Needed: Please paste your deployment URL into the API_URL variable inside index.html on line 214!");
+        alert("Setup Needed: Please paste your deployment URL into the API_URL variable inside index.html!");
         return;
       }
+
+      // Add Enter key listener to password input field
+      document.getElementById('auth-password').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') handleAuthVerification();
+      });
+
+      // Check Session Storage for valid existing token
+      if (sessionStorage.getItem('flagOpsAuthToken') === 'verified_session') {
+        launchOperationalDashboard();
+      } else {
+        document.getElementById('auth-screen').style.display = '';
+      }
+    };
+
+    function handleAuthVerification() {
+      const inputPass = document.getElementById('auth-password').value;
+      const errorMsg = document.getElementById('auth-error-msg');
+      
+      if (inputPass === 'sas4midland') {
+        errorMsg.style.display = 'none';
+        sessionStorage.setItem('flagOpsAuthToken', 'verified_session');
+        document.getElementById('auth-screen').style.display = 'none';
+        launchOperationalDashboard();
+      } else {
+        errorMsg.style.display = 'block';
+        document.getElementById('auth-password').value = '';
+      }
+    }
+
+    function launchOperationalDashboard() {
+      document.getElementById('app-header').style.display = 'flex';
+      document.getElementById('setup-screen').style.display = '';
+      
       showLoading('Loading tracking paths...');
       updateSyncPillDisplay();
       setInterval(flushLocalOfflineQueueToServer, 12000);
@@ -364,7 +411,7 @@
           else showError("Failed to read sheet headers: " + res.error);
         })
         .catch(err => { hideLoading(); showError("Network issue reaching Google. Check deployment settings."); });
-    };
+    }
 
     function switchView(targetScreenId) {
       document.getElementById('setup-screen').style.display = 'none';
@@ -395,7 +442,7 @@
     function triggerSystemMapRedirect() {
       if (activeFilteredRoute.length === 0) return;
       const address = activeFilteredRoute[currentIndex].address;
-      window.open("https://maps.google.com/?q=" + encodeURIComponent(address), '_blank');
+      window.open("http://maps.google.com/?q=" + encodeURIComponent(address), '_blank');
     }
 
     function showError(msg) { document.getElementById('error-msg').innerText = msg; document.getElementById('error-banner').classList.add('visible'); }
