@@ -33,8 +33,43 @@
       --theme-color: var(--green);
     }
     body.mode-retrieval { --theme-color: var(--blue); --placed-bg: var(--blue-bg); --placed-border: var(--blue-dim); }
+    
+    /* Feature 1: High-Contrast Light Theme Overrides */
+    body.light-mode {
+      --bg: #f4f4f7;
+      --surface: #ffffff;
+      --surface2: #eaeaea;
+      --border: #d1d1d6;
+      --border-bright: #a1a1aa;
+      --text: #1c1c1e;
+      --muted: #636366;
+      --faint: #e5e5ea;
+      --green-bg: #e2f7ed;
+      --amber-bg: #fef3e2;
+      --red-bg: #fde8e8;
+      --blue-bg: #e0f0ff;
+      --placed-bg: #e2f7ed;
+      --placed-border: #39d98a;
+    }
+    body.light-mode.mode-retrieval {
+      --placed-bg: #e0f0ff;
+      --placed-border: #4d9eff;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; display: flex; flex-direction: column; user-select: none; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    body { 
+      background: var(--bg); 
+      color: var(--text); 
+      font-family: 'Barlow', sans-serif; 
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+      user-select: none; 
+      -webkit-font-smoothing: antialiased; 
+      overflow-x: hidden; 
+      /* Feature 2: Prevent Accidental Mobile Pull-To-Refresh reloads */
+      overscroll-behavior-y: contain; 
+    }
     header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; flex-shrink: 0; }
     .header-logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px; letter-spacing: 0.08em; color: var(--theme-color); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
     .header-logo::before { content: ''; display: block; width: 6px; height: 6px; background: var(--theme-color); border-radius: 50%; box-shadow: 0 0 8px var(--theme-color); }
@@ -126,7 +161,7 @@
     .nav-btn:hover { color: var(--text); background: var(--faint); }
     #card-index { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--muted); background: var(--faint); border: 1px solid var(--border); padding: 4px 12px; border-radius: 4px; }
     .swipe-hint { text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--border-bright); letter-spacing: 0.1em; text-transform: uppercase; margin-top: -4px; }
-    .route-complete-card { background: #111113; border: 2px dashed var(--theme-color); border-radius: 12px; padding: 32px 20px; text-align: center; display: none; flex-direction: column; gap: 16px; align-items: center; }
+    .route-complete-card { background: var(--surface); border: 2px dashed var(--theme-color); border-radius: 12px; padding: 32px 20px; text-align: center; display: none; flex-direction: column; gap: 16px; align-items: center; }
     .route-complete-card.visible { display: flex; }
     .complete-icon { font-size: 40px; }
     .next-banner { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
@@ -137,8 +172,8 @@
     .toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
     .toggle-input { width: 20px; height: 20px; accent-color: var(--theme-color); }
     .toggle-label { font-size: 14px; font-weight: 600; }
-    #issue-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 50; display: none; justify-content: center; align-items: flex-end; }
-    #issue-modal.open { display: flex; }
+    #issue-modal, #list-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 50; display: none; justify-content: center; align-items: flex-end; }
+    #issue-modal.open, #list-modal.open { display: flex; }
     .modal-sheet { background: var(--surface); width: 100%; max-width: 440px; border-radius: 16px 16px 0 0; border: 1px solid var(--border); padding: 24px 20px 32px; animation: slide-up 0.22s cubic-bezier(.22,1,.36,1); }
     @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
@@ -152,6 +187,16 @@
     .macro-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; color: var(--text); text-transform: uppercase; }
     textarea { resize: none; font-size: 14px; margin-bottom: 14px; }
     .btn-log-issue { width: 100%; background: var(--red); color: #000; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 17px; letter-spacing: 0.12em; text-transform: uppercase; padding: 16px; border: none; border-radius: 8px; cursor: pointer; }
+
+    /* Feature 5: Multi-Stop List Item UI Styles */
+    .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; background: var(--bg); border-radius: 8px; margin-bottom: 8px; transition: border-color 0.15s; }
+    .list-item.active-item { border: 2px solid var(--theme-color); background: var(--surface2); }
+    .list-item-address { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; text-transform: uppercase; color: var(--text); }
+    .list-item-status { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; border: 1px solid opacity 0.2; }
+    .status-placed { background: var(--green-bg); color: var(--green); border-color: var(--green-dim); }
+    .status-retrieved { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-dim); }
+    .status-pending { background: var(--faint); color: var(--muted); border-color: var(--border); }
+    .status-issue { background: var(--red-bg); color: var(--red); border-color: var(--red-dim); }
   </style>
 </head>
 <body>
@@ -173,6 +218,7 @@
   <header id="app-header" style="display: none;">
     <div class="header-logo" id="header-brand">Flag Ops</div>
     <div class="header-right">
+      <button onclick="document.body.classList.toggle('light-mode')" class="nav-btn" style="min-width:auto; padding:4px 8px; font-size:11px; border:1px solid var(--border); background:var(--faint); margin-right:4px; font-weight:700;">☀️ Contrast</button>
       <span id="sync-pill" class="sync-pill sync-ok">☁ Connected</span>
       <span id="progress-text" class="progress-pill">0/0 Done</span>
     </div>
@@ -244,6 +290,10 @@
       <span class="search-icon">⌕</span>
       <input type="text" id="search-bar" oninput="executeSearchFilter()" placeholder="Search address or name...">
       <button onclick="clearSearch()" id="clear-search-btn">Clear</button>
+    </div>
+    
+    <div style="display: flex; gap: 8px; width: 100%; margin-top: 6px; align-items: center;">
+      <button onclick="openRouteListDrawer()" class="map-nav-btn" style="padding: 6px 12px; font-size: 11px; height: 32px; width: 100%; justify-content: center; background: var(--surface); border-color: var(--border);">📋 View Route List Overview</button>
     </div>
     <div id="filter-indicator"></div>
 
@@ -349,6 +399,17 @@
     </div>
   </div>
 
+  <div id="list-modal">
+    <div class="modal-sheet" style="max-height: 82vh; display: flex; flex-direction: column; padding-bottom: 24px;">
+      <div class="modal-header" style="flex-shrink: 0; padding-bottom: 12px;">
+        <div class="modal-title" style="color: var(--theme-color);">📋 Sector Stop Sequence</div>
+        <button onclick="closeRouteListDrawer()" class="modal-cancel">Dismiss</button>
+      </div>
+      <div id="route-list-container" style="overflow-y: auto; flex: 1; padding-top: 14px; margin-bottom: 10px;">
+        </div>
+    </div>
+  </div>
+
   <script>
     // ⚠️ PASTE YOUR COPIED GOOGLE APPS SCRIPT WEB APP URL BETWEEN THESE QUOTES:
     const API_URL = "https://script.google.com/macros/s/AKfycbzz9FhWbq2B2y4dc8W9TVPvJbJmioGb-ptzjW7CJWjB1BgLNuSGep2SdLn5sVh7aL2uCQ/exec"; 
@@ -360,6 +421,9 @@
     let undoTimer = null;
     let pendingUndo = null;
     let syncQueue = JSON.parse(localStorage.getItem('flagOpsSyncQueue')) || [];
+    
+    // Feature 3: Wake Lock variable definition
+    let wakeLock = null;
 
     window.onload = function() {
       if(API_URL.includes("YOUR_SCRIPT_WEB_APP_URL")) {
@@ -379,6 +443,33 @@
         document.getElementById('auth-screen').style.display = '';
       }
     };
+
+    // Feature 3: Keep device screen wake lock engaged active outdoors
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          console.log('Operational screen lock engaged.');
+        }
+      } catch (err) {
+        console.log(`Wake lock block error: ${err.message}`);
+      }
+    }
+
+    function releaseWakeLock() {
+      if (wakeLock !== null) {
+        wakeLock.release();
+        wakeLock = null;
+        console.log('Operational screen lock released.');
+      }
+    }
+
+    // Feature 3: Re-engage screen hold if field user turns phone screen off and back on again
+    document.addEventListener('visibilitychange', async () => {
+      if (wakeLock !== null && document.visibilityState === 'visible') {
+        await requestWakeLock();
+      }
+    });
 
     function handleAuthVerification() {
       const inputPass = document.getElementById('auth-password').value;
@@ -473,6 +564,8 @@
             rawRouteData = res.data;
             executeSearchFilter();
             switchView('app-screen');
+            // Feature 3: Engage Wake lock upon entering active field deployment map
+            requestWakeLock();
           } else {
             showError("Cloud error: " + res.error);
           }
@@ -558,7 +651,12 @@
       document.getElementById('progress-bar-fill').style.width = (rawRouteData.length > 0 ? (doneCount / rawRouteData.length) * 100 : 0) + '%';
     }
 
-    function deployHouse() { if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return; markStatus((currentMode === 'Deployment') ? 'Placed' : 'Retrieved', '', true); }
+    // Feature 4: Injected Haptic feedback confirmations into physical clicks
+    function deployHouse() { 
+      if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return; 
+      if (navigator.vibrate) { navigator.vibrate(50); } 
+      markStatus((currentMode === 'Deployment') ? 'Placed' : 'Retrieved', '', true); 
+    }
 
     function markStatus(status, customNote = "", withUndo = false) {
       if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return;
@@ -584,6 +682,45 @@
       const p = document.getElementById('sync-pill');
       p.innerText = syncQueue.length === 0 ? "☁ Synced" : `⚡ ${syncQueue.length} Local Buffers`;
       p.className = "sync-pill " + (syncQueue.length === 0 ? "sync-ok" : "sync-pending");
+    }
+
+    // Feature 5: Multi-Stop Routing Drawer Interactions
+    function openRouteListDrawer() {
+      renderListView();
+      document.getElementById('list-modal').classList.add('open');
+    }
+    function closeRouteListDrawer() {
+      document.getElementById('list-modal').classList.remove('open');
+    }
+    function renderListView() {
+      const container = document.getElementById('route-list-container');
+      container.innerHTML = '';
+      if (activeFilteredRoute.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:13px; padding:20px;">No stops matched active parameters.</div>';
+        return;
+      }
+      activeFilteredRoute.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = `list-item ${index === currentIndex ? 'active-item' : ''}`;
+        div.onclick = () => {
+          currentIndex = index;
+          updateUI();
+          closeRouteListDrawer();
+          if (navigator.vibrate) navigator.vibrate(30);
+        };
+
+        let sClass = 'status-pending';
+        let sText = 'Pending';
+        if (item.status === 'Placed') { sClass = 'status-placed'; sText = 'Placed'; }
+        else if (item.status === 'Retrieved') { sClass = 'status-retrieved'; sText = 'Retrieved'; }
+        else if (item.status && item.status.includes('Issue')) { sClass = 'status-issue'; sText = 'Issue'; }
+
+        div.innerHTML = `
+          <div class="list-item-address">${index + 1}. ${item.address}</div>
+          <div class="list-item-status ${sClass}">${sText}</div>
+        `;
+        container.appendChild(div);
+      });
     }
 
     function flushLocalOfflineQueueToServer() {
@@ -656,12 +793,26 @@
     function openIssueDrawer() { if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return; document.getElementById('modal-address-label').innerText = activeFilteredRoute[currentIndex].address; document.getElementById('issue-modal').classList.add('open'); }
     function closeIssueDrawer() { document.getElementById('issue-modal').classList.remove('open'); }
     function selectIssueMacro(btn, text) { document.querySelectorAll('.macro-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); document.getElementById('custom-issue-text').value = text; }
-    function submitIssueLog() { const note = document.getElementById('custom-issue-text').value.trim(); closeIssueDrawer(); markStatus('Skipped/Issue', note || "Flag skipped."); setTimeout(() => { if (currentIndex < activeFilteredRoute.length) nextHouse(); }, 200); }
+    function submitIssueLog() { 
+      const note = document.getElementById('custom-issue-text').value.trim(); 
+      closeIssueDrawer(); 
+      if (navigator.vibrate) navigator.vibrate(60);
+      markStatus('Skipped/Issue', note || "Flag skipped.", false); 
+      setTimeout(() => { if (currentIndex < activeFilteredRoute.length) nextHouse(); }, 200); 
+    }
 
     function nextHouse() { dismissUndoToast(); if (currentIndex < activeFilteredRoute.length) { currentIndex++; updateUI(); animateCard('swipe-left'); } }
     function prevHouse() { dismissUndoToast(); if (currentIndex > 0) { currentIndex--; updateUI(); animateCard('swipe-right'); } }
     function animateCard(cls) { const card = document.getElementById('main-data-card'); card.classList.remove('swipe-left', 'swipe-right'); void card.offsetWidth; card.classList.add(cls); setTimeout(() => card.classList.remove(cls), 300); }
-    function returnToMenu() { dismissUndoToast(); document.getElementById('search-bar').value = ""; executeSearchFilter(); switchView('setup-screen'); }
+    
+    function returnToMenu() { 
+      dismissUndoToast(); 
+      // Feature 3: Clear operational screen wake lock when returning to setups
+      releaseWakeLock(); 
+      document.getElementById('search-bar').value = ""; 
+      executeSearchFilter(); 
+      switchView('setup-screen'); 
+    }
 
     (function() {
       const card = document.getElementById('main-data-card');
