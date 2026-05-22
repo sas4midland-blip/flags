@@ -3,7 +3,7 @@
 <head>
   <base target="_top">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
@@ -32,262 +32,78 @@
       --placed-border: #1a3d2e;
       --theme-color: var(--green);
     }
-
-    /* Retrieval Variant Theme Context Adjustments */
-    body.mode-retrieval {
-      --theme-color: var(--blue);
-      --placed-bg: var(--blue-bg);
-      --placed-border: var(--blue-dim);
-    }
-
+    body.mode-retrieval { --theme-color: var(--blue); --placed-bg: var(--blue-bg); --placed-border: var(--blue-dim); }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Barlow', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      user-select: none;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    /* ── HEADER ── */
-    header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 16px;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 40;
-      flex-shrink: 0;
-    }
-
-    .header-logo {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: 18px;
-      letter-spacing: 0.08em;
-      color: var(--theme-color);
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .header-logo::before {
-      content: '';
-      display: block;
-      width: 6px;
-      height: 6px;
-      background: var(--theme-color);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--theme-color);
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .progress-pill {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--muted);
-      background: var(--faint);
-      border: 1px solid var(--border);
-      padding: 4px 10px;
-      border-radius: 4px;
-      letter-spacing: 0.05em;
-    }
-
-    .sync-pill {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-    }
+    body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; display: flex; flex-direction: column; user-select: none; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; flex-shrink: 0; }
+    .header-logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px; letter-spacing: 0.08em; color: var(--theme-color); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+    .header-logo::before { content: ''; display: block; width: 6px; height: 6px; background: var(--theme-color); border-radius: 50%; box-shadow: 0 0 8px var(--theme-color); }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .progress-pill { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--muted); background: var(--faint); border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; letter-spacing: 0.05em; }
+    .sync-pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); }
     .sync-ok { background: var(--green-bg); color: var(--green); border-color: var(--green-dim); }
     .sync-pending { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-dim); }
-
-    #progress-bar-wrap {
-      height: 3px;
-      background: var(--faint);
-      width: 100%;
-      display: none;
-      flex-shrink: 0;
-    }
-
-    #progress-bar-fill {
-      height: 100%;
-      background: var(--theme-color);
-      width: 0%;
-      transition: width 0.4s ease;
-    }
-
-    #error-banner {
-      display: none;
-      background: var(--red-bg);
-      border-bottom: 1px solid var(--red-dim);
-      padding: 10px 16px;
-      font-size: 13px;
-      color: var(--red);
-      font-weight: 600;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
-    }
+    #progress-bar-wrap { height: 3px; background: var(--faint); width: 100%; display: none; flex-shrink: 0; }
+    #progress-bar-fill { height: 100%; background: var(--theme-color); width: 0%; transition: width 0.4s ease; }
+    #error-banner { display: none; background: var(--red-bg); border-bottom: 1px solid var(--red-dim); padding: 10px 16px; font-size: 13px; color: var(--red); font-weight: 600; align-items: center; gap: 10px; flex-shrink: 0; }
     #error-banner.visible { display: flex; }
     #error-banner button { background: none; border: none; color: var(--red); font-size: 16px; margin-left: auto; padding: 0 4px; opacity: 0.7; }
-
-    #undo-toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--surface2);
-      border: 1px solid var(--border-bright);
-      border-radius: 10px;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      z-index: 60;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      white-space: nowrap;
-      transition: transform 0.28s cubic-bezier(.22,1,.36,1), opacity 0.28s;
-      opacity: 0;
-      pointer-events: none;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-    }
+    #undo-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); border: 1px solid var(--border-bright); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; z-index: 60; font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; transition: transform 0.28s cubic-bezier(.22,1,.36,1), opacity 0.28s; opacity: 0; pointer-events: none; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
     #undo-toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
     #undo-toast-timer { width: 28px; height: 28px; position: relative; flex-shrink: 0; }
     #undo-toast-timer svg { transform: rotate(-90deg); }
     #undo-timer-circle { stroke-dasharray: 75.4; stroke-dashoffset: 0; transition: stroke-dashoffset linear; }
     #undo-btn { background: var(--theme-color); color: #000; border: none; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
-
-    /* ── MAIN LAYOUT CONTAINERS ── */
-    main {
-      flex: 1;
-      padding: 20px 16px;
-      max-width: 440px;
-      width: 100%;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-    }
+    main { flex: 1; padding: 20px 16px; max-width: 440px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; }
     #setup-screen, #customer-screen { justify-content: center; }
-
-    .setup-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      position: relative;
-      overflow: hidden;
-    }
-    .setup-card::before {
-      content: 'FIELD';
-      position: absolute;
-      top: -10px;
-      right: -8px;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: 72px;
-      color: var(--faint);
-      letter-spacing: -0.02em;
-      pointer-events: none;
-      line-height: 1;
-      opacity: 0.5;
-    }
-
+    .setup-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; position: relative; overflow: hidden; }
+    .setup-card::before { content: 'FIELD'; position: absolute; top: -10px; right: -8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 72px; color: var(--faint); letter-spacing: -0.02em; pointer-events: none; line-height: 1; opacity: 0.5; }
     .setup-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--theme-color); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; }
     .setup-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 32px; color: var(--text); letter-spacing: 0.02em; text-transform: uppercase; line-height: 1; margin-bottom: 4px; }
     .setup-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; font-weight: 500; }
     label.field-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; margin-top: 12px; }
-
-    select, textarea, input[type="text"], input[type="number"] {
-      width: 100%; background: var(--bg); border: 1px solid var(--border-bright); border-radius: 8px; color: var(--text); font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 15px; padding: 12px 14px; appearance: none; -webkit-appearance: none; transition: border-color 0.15s; outline: none;
-    }
+    select, textarea, input[type="text"], input[type="number"] { width: 100%; background: var(--bg); border: 1px solid var(--border-bright); border-radius: 8px; color: var(--text); font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 15px; padding: 12px 14px; appearance: none; -webkit-appearance: none; transition: border-color 0.15s; outline: none; }
     select:focus, textarea:focus, input[type="text"]:focus, input[type="number"]:focus { border-color: var(--theme-color); }
     select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b78' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer; }
-
-    /* Mode Selector Toggles */
-    .mode-toggle-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .mode-btn {
-      background: var(--bg); border: 1px solid var(--border-bright); border-radius: 8px; padding: 12px; text-align: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; color: var(--muted); cursor: pointer;
-    }
+    .mode-toggle-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .mode-btn { background: var(--bg); border: 1px solid var(--border-bright); border-radius: 8px; padding: 12px; text-align: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; color: var(--muted); cursor: pointer; }
     .mode-btn.active.deploy-choice { border-color: var(--green); background: var(--green-bg); color: var(--green); }
     .mode-btn.active.retrieve-choice { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
-
     .btn-primary { width: 100%; background: var(--theme-color); color: #000; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px; letter-spacing: 0.12em; text-transform: uppercase; padding: 14px; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.08s; margin-top: 10px; }
     .btn-primary:active { transform: scale(0.98); }
-    .btn-primary:disabled { opacity: 0.5; }
-
     .btn-danger { background: var(--red-bg); border: 1px solid var(--red-dim); color: var(--red); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; padding: 12px 8px; border-radius: 8px; cursor: pointer; }
     .btn-ghost { background: var(--faint); border: 1px solid var(--border); color: var(--muted); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; padding: 12px 8px; border-radius: 8px; cursor: pointer; }
-
-    /* ── APP SCREEN ── */
     #app-screen { display: none; flex-direction: column; gap: 12px; }
     #app-screen.visible { display: flex; }
-
     #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(14,14,15,0.85); z-index: 80; align-items: center; justify-content: center; flex-direction: column; gap: 14px; }
     #loading-overlay.visible { display: flex; }
     .spinner { width: 32px; height: 32px; border: 3px solid var(--border-bright); border-top-color: var(--theme-color); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
-
     .search-wrap { position: relative; }
     .search-wrap input { padding-left: 38px; font-size: 14px; }
     .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
     #filter-indicator { display: none; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: var(--amber); letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; background: var(--amber-bg); border: 1px solid var(--amber-dim); border-radius: 4px; margin-top: 6px; }
     #filter-indicator.visible { display: block; }
     #clear-search-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: var(--border); border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 3px 8px; border-radius: 4px; cursor: pointer; display: none; }
-
     .main-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 16px; position: relative; touch-action: pan-y; }
     .main-card.is-placed { border-color: var(--placed-border); background: var(--placed-bg); }
     .main-card.swipe-left { animation: swipe-hint-left 0.22s ease; }
     .main-card.swipe-right { animation: swipe-hint-right 0.22s ease; }
     @keyframes swipe-hint-left { 0%,100% { transform: translateX(0); } 40% { transform: translateX(-12px); } }
     @keyframes swipe-hint-right { 0%,100% { transform: translateX(0); } 40% { transform: translateX(12px); } }
-
     .card-title-block { display: flex; flex-direction: column; gap: 2px; flex: 1; }
     .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
     .territory-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--theme-color); letter-spacing: 0.15em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
     .placed-ribbon { display: none; font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 900; color: var(--theme-color); letter-spacing: 0.15em; text-transform: uppercase; background: var(--faint); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; }
     .is-placed .placed-ribbon { display: inline-block; }
-
-    /* Map Navigation Trigger Layout */
     .address-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; width: 100%; margin-top: 4px; }
     #card-address { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 34px; letter-spacing: 0.01em; color: var(--text); line-height: 1.1; text-transform: uppercase; }
-    
-    .map-nav-btn {
-      background: var(--surface2); border: 1px solid var(--border-bright); border-radius: 8px; padding: 10px 12px; color: var(--text); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    .map-nav-btn:active { background: var(--border); }
-
+    .map-nav-btn { background: var(--surface2); border: 1px solid var(--border-bright); border-radius: 8px; padding: 10px 12px; color: var(--text); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0; }
     #card-name { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
     #paid-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; white-space: nowrap; }
     .badge-clear { background: var(--green-bg); border: 1px solid var(--green-dim); color: var(--green); }
     .badge-collect { background: var(--red); color: #000; font-weight: 900; }
-
     .stat-row { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
     .stat-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
     .stat-box.flag-alert { background: var(--amber-bg); border-color: var(--amber); }
@@ -297,45 +113,30 @@
     .flag-alert .stat-value { color: var(--amber); }
     .stat-text { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); letter-spacing: 0.05em; text-transform: uppercase; line-height: 1.2; }
     .conduit-yes .stat-text { color: var(--blue); }
-
     .notes-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
     .notes-box .stat-label { margin-bottom: 6px; }
     #card-placement { font-size: 14px; color: #b0b0be; font-weight: 500; line-height: 1.5; font-style: italic; }
-
     .actions { display: flex; flex-direction: column; gap: 10px; }
     .btn-deploy { width: 100%; background: var(--theme-color); color: #000; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 20px; letter-spacing: 0.12em; text-transform: uppercase; padding: 16px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
     .btn-deploy:active { transform: scale(0.97); }
     .btn-deploy.already-placed { background: var(--faint); border: 2px solid var(--border-bright); color: var(--muted); }
-
     .secondary-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .nav-row { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); }
     .nav-btn { background: none; border: none; color: var(--muted); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 12px; cursor: pointer; border-radius: 6px; min-width: 64px; }
     .nav-btn:hover { color: var(--text); background: var(--faint); }
     #card-index { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--muted); background: var(--faint); border: 1px solid var(--border); padding: 4px 12px; border-radius: 4px; }
     .swipe-hint { text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--border-bright); letter-spacing: 0.1em; text-transform: uppercase; margin-top: -4px; }
-
-    /* Auto-Routing / Route Complete View Overlay Card */
-    .route-complete-card {
-       background: #111113; border: 2px dashed var(--theme-color); border-radius: 12px; padding: 32px 20px; text-align: center; display: none; flex-direction: column; gap: 16px; align-items: center;
-    }
+    .route-complete-card { background: #111113; border: 2px dashed var(--theme-color); border-radius: 12px; padding: 32px 20px; text-align: center; display: none; flex-direction: column; gap: 16px; align-items: center; }
     .route-complete-card.visible { display: flex; }
     .complete-icon { font-size: 40px; }
-
     .next-banner { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
     .next-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 3px; }
     #preview-address { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); text-transform: uppercase; letter-spacing: 0.03em; }
-    #preview-badges { display: flex; gap: 6px; flex-shrink: 0; }
-    .mini-badge { padding: 3px 7px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; }
-
     .change-route-btn { background: none; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-align: center; cursor: pointer; padding: 8px; display: block; width: 100%; text-decoration: underline; }
-
-    /* Form Segment Separations */
     .form-segment { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
     .toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
     .toggle-input { width: 20px; height: 20px; accent-color: var(--theme-color); }
     .toggle-label { font-size: 14px; font-weight: 600; }
-
-    /* ── MODAL ── */
     #issue-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 50; display: none; justify-content: center; align-items: flex-end; }
     #issue-modal.open { display: flex; }
     .modal-sheet { background: var(--surface); width: 100%; max-width: 440px; border-radius: 16px 16px 0 0; border: 1px solid var(--border); padding: 24px 20px 32px; animation: slide-up 0.22s cubic-bezier(.22,1,.36,1); }
@@ -395,13 +196,10 @@
       <div class="form-segment">
         <label class="field-label">Target Sector / Neighborhood Name</label>
         <input type="text" id="cust-sector" placeholder="e.g., Somerset Pines">
-
         <label class="field-label">Street Address</label>
         <input type="text" id="cust-address" placeholder="e.g., 1234 Winterberry Ct">
-
         <label class="field-label">Resident / Business Name</label>
-        <input type="text" id="cust-name" placeholder="Resident Name or 'Current Occupant'">
-
+        <input type="text" id="cust-name" placeholder="Resident Name">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
           <div>
             <label class="field-label">Flag Volume</label>
@@ -415,16 +213,13 @@
             </label>
           </div>
         </div>
-
         <label class="field-label">Placement Directives / Notes</label>
         <textarea id="cust-placement" rows="2" placeholder="e.g., 3ft from curb left of mailbox"></textarea>
-
         <label class="toggle-row">
           <input type="checkbox" id="cust-paid" class="toggle-input" checked>
           <span class="toggle-label">Account Payment Confirmed</span>
         </label>
       </div>
-
       <button onclick="submitNewCustomerField()" class="btn-primary">Save To Live Master Sheet</button>
       <button onclick="switchView('setup-screen')" class="btn-ghost" style="width:100%; margin-top:8px;">Cancel & Return</button>
     </div>
@@ -491,7 +286,7 @@
     <div class="route-complete-card" id="route-completion-card">
       <span class="complete-icon">🎉</span>
       <h3 style="font-family:'Barlow Condensed'; font-size:24px; font-weight:900;">ROUTE COMPLETION ACHIEVED</h3>
-      <p style="font-size:13px; color:var(--muted); margin-top:-8px;">All scheduled parcels have been executed inside this target group.</p>
+      <p style="font-size:13px; color:var(--muted); margin-top:-8px;">All scheduled parcels executed inside this target group.</p>
       <button onclick="returnToMenu()" class="btn-primary" style="margin:0;">Select New Route Pipeline</button>
     </div>
 
@@ -500,23 +295,20 @@
         <div class="next-label">Up Next</div>
         <div id="preview-address">End of Route</div>
       </div>
-      <div id="preview-badges"></div>
     </div>
-
     <button onclick="returnToMenu()" class="change-route-btn">↩ Change Route Matrix</button>
   </main>
 
   <div id="loading-overlay">
     <div class="spinner"></div>
-    <div class="loading-text" id="loading-text">Loading configuration...</div>
+    <div class="loading-text" id="loading-text">Loading...</div>
   </div>
 
   <div id="undo-toast">
     <div id="undo-toast-timer">
       <svg width="28" height="28" viewBox="0 0 28 28">
         <circle cx="14" cy="14" r="12" fill="none" stroke="#2a2a2e" stroke-width="2.5"/>
-        <circle id="undo-timer-circle" cx="14" cy="14" r="12" fill="none" stroke="var(--theme-color)" stroke-width="2.5"
-          stroke-dasharray="75.4" stroke-dashoffset="0" stroke-linecap="round"/>
+        <circle id="undo-timer-circle" cx="14" cy="14" r="12" fill="none" stroke="var(--theme-color)" stroke-width="2.5" stroke-dasharray="75.4" stroke-dashoffset="0" stroke-linecap="round"/>
       </svg>
     </div>
     <span id="undo-toast-msg">Action Registered</span>
@@ -532,18 +324,10 @@
       <div class="modal-address" id="modal-address-label"></div>
       <div class="modal-desc">Select a reason or write a custom note:</div>
       <div class="macro-grid">
-        <button onclick="selectIssueMacro(this, 'No Conduit Ground Sleeve Found')" class="macro-btn">
-          <span class="macro-label">Missing Sleeve</span>
-        </button>
-        <button onclick="selectIssueMacro(this, 'Driveway Blocked / Vehicles')" class="macro-btn">
-          <span class="macro-label">Driveway Blocked</span>
-        </button>
-        <button onclick="selectIssueMacro(this, 'Safety Risk / Loose Dog')" class="macro-btn">
-          <span class="macro-label">Dog / Safety Risk</span>
-        </button>
-        <button onclick="selectIssueMacro(this, 'Homeowner Requested Skip')" class="macro-btn">
-          <span class="macro-label">Skip Requested</span>
-        </button>
+        <button onclick="selectIssueMacro(this, 'No Conduit Ground Sleeve Found')" class="macro-btn"><span class="macro-label">Missing Sleeve</span></button>
+        <button onclick="selectIssueMacro(this, 'Driveway Blocked / Vehicles')" class="macro-btn"><span class="macro-label">Driveway Blocked</span></button>
+        <button onclick="selectIssueMacro(this, 'Safety Risk / Loose Dog')" class="macro-btn"><span class="macro-label">Dog / Safety Risk</span></button>
+        <button onclick="selectIssueMacro(this, 'Homeowner Requested Skip')" class="macro-btn"><span class="macro-label">Skip Requested</span></button>
       </div>
       <label class="field-label">Custom Note</label>
       <textarea id="custom-issue-text" rows="2" placeholder="Describe the issue..."></textarea>
@@ -552,35 +336,34 @@
   </div>
 
   <script>
+    // ⚠️ PASTE YOUR COPIED GOOGLE APPS SCRIPT WEB APP URL BETWEEN THESE QUOTES:
+    const API_URL = "https://script.google.com/macros/s/AKfycbzz9FhWbq2B2y4dc8W9TVPvJbJmioGb-ptzjW7CJWjB1BgLNuSGep2SdLn5sVh7aL2uCQ/exec"; 
+
     let rawRouteData = [];
     let activeFilteredRoute = [];
     let currentIndex = 0;
-    let currentMode = 'Deployment'; // Controlled Context
-
-    // Undo States
+    let currentMode = 'Deployment';
     let undoTimer = null;
     let pendingUndo = null;
-
-    // Smart Caching Local Sync Sub-System Struct
     let syncQueue = JSON.parse(localStorage.getItem('flagOpsSyncQueue')) || [];
 
     window.onload = function() {
+      if(API_URL.includes("YOUR_SCRIPT_WEB_APP_URL")) {
+        alert("Setup Needed: Please paste your deployment URL into the API_URL variable inside index.html on line 214!");
+        return;
+      }
       showLoading('Loading tracking paths...');
       updateSyncPillDisplay();
-      
-      // Start Silent Smart Sync background polling daemon loop
       setInterval(flushLocalOfflineQueueToServer, 12000);
 
-      google.script.run
-        .withSuccessHandler(function(names) {
+      fetch(`${API_URL}?action=getRouteNames`)
+        .then(res => res.json())
+        .then(res => {
           hideLoading();
-          populateDropdown(names);
+          if (res.success) populateDropdown(res.data);
+          else showError("Failed to read sheet headers: " + res.error);
         })
-        .withFailureHandler(function(error) {
-          hideLoading();
-          showError("Initialization breakdown: " + error.message);
-        })
-        .getRouteNames();
+        .catch(err => { hideLoading(); showError("Network issue reaching Google. Check deployment settings."); });
     };
 
     function switchView(targetScreenId) {
@@ -588,7 +371,6 @@
       document.getElementById('customer-screen').style.display = 'none';
       document.getElementById('app-screen').classList.remove('visible');
       document.getElementById('progress-bar-wrap').style.display = 'none';
-      
       if (targetScreenId === 'app-screen') {
         document.getElementById('app-screen').classList.add('visible');
         document.getElementById('progress-bar-wrap').style.display = 'block';
@@ -601,7 +383,6 @@
       currentMode = selectedMode;
       document.getElementById('m-deploy').classList.toggle('active', currentMode === 'Deployment');
       document.getElementById('m-retrieve').classList.toggle('active', currentMode === 'Retrieval');
-      
       if (currentMode === 'Retrieval') {
         document.body.classList.add('mode-retrieval');
         document.getElementById('header-brand').innerText = "Flag Ops (Retrieval)";
@@ -611,18 +392,13 @@
       }
     }
 
-    // NATIVE MAP INTENT DEEP INTEROP REDIRECT
     function triggerSystemMapRedirect() {
       if (activeFilteredRoute.length === 0) return;
       const address = activeFilteredRoute[currentIndex].address;
-      const targetUrl = "https://maps.google.com/?q=" + encodeURIComponent(address);
-      window.open(targetUrl, '_blank');
+      window.open("https://maps.google.com/?q=" + encodeURIComponent(address), '_blank');
     }
 
-    function showError(msg) {
-      document.getElementById('error-msg').innerText = msg;
-      document.getElementById('error-banner').classList.add('visible');
-    }
+    function showError(msg) { document.getElementById('error-msg').innerText = msg; document.getElementById('error-banner').classList.add('visible'); }
     function dismissError() { document.getElementById('error-banner').classList.remove('visible'); }
     function showLoading(msg) { document.getElementById('loading-text').innerText = msg || 'Executing...'; document.getElementById('loading-overlay').classList.add('visible'); }
     function hideLoading() { document.getElementById('loading-overlay').classList.remove('visible'); }
@@ -630,10 +406,6 @@
     function populateDropdown(names) {
       const dropdown = document.getElementById('sheet-dropdown');
       dropdown.innerHTML = '';
-      if (!names || names.length === 0 || names[0].includes("Error")) {
-        dropdown.innerHTML = '<option value="">Failed route mapping lookup</option>';
-        return;
-      }
       let ph = document.createElement('option'); ph.value = ""; ph.innerText = "Select standard sector route...";
       dropdown.appendChild(ph);
       names.forEach(n => {
@@ -646,33 +418,31 @@
       if (!selectedSector) { showError("Select execution neighborhood segment."); return; }
       showLoading('Pulling live ledger states...');
 
-      google.script.run
-        .withSuccessHandler(function(data) {
+      fetch(`${API_URL}?action=getRouteData&route=${encodeURIComponent(selectedSector)}`)
+        .then(res => res.json())
+        .then(res => {
           hideLoading();
-          rawRouteData = data;
-          executeSearchFilter(); // Establish baseline route structural vectors
-          switchView('app-screen');
+          if (res.success) {
+            rawRouteData = res.data;
+            executeSearchFilter();
+            switchView('app-screen');
+          } else {
+            showError("Cloud error: " + res.error);
+          }
         })
-        .withFailureHandler(function(err) {
-          hideLoading();
-          showError("Cloud drop error: " + err.message);
-        })
-        .getRouteData(selectedSector);
+        .catch(err => { hideLoading(); showError("Network issue loading route data."); });
     }
 
     function executeSearchFilter() {
       const query = document.getElementById('search-bar').value.toLowerCase().trim();
       const clearBtn = document.getElementById('clear-search-btn');
       const indicator = document.getElementById('filter-indicator');
-
       if (query === "") {
         activeFilteredRoute = [...rawRouteData];
         clearBtn.style.display = 'none';
         indicator.classList.remove('visible');
       } else {
-        activeFilteredRoute = rawRouteData.filter(item =>
-          item.address.toLowerCase().includes(query) || item.name.toLowerCase().includes(query)
-        );
+        activeFilteredRoute = rawRouteData.filter(item => item.address.toLowerCase().includes(query) || item.name.toLowerCase().includes(query));
         clearBtn.style.display = 'block';
         indicator.classList.add('visible');
         indicator.innerText = `Search Filtering Active — ${activeFilteredRoute.length} Matched`;
@@ -680,24 +450,19 @@
       currentIndex = 0;
       updateUI();
     }
-
     function clearSearch() { document.getElementById('search-bar').value = ""; executeSearchFilter(); }
 
     function updateUI() {
       const card = document.getElementById('main-data-card');
       const completeDeck = document.getElementById('route-completion-card');
-
-      // Check if current run bounds are exhausted -> Trigger auto select routing workflow
       if (activeFilteredRoute.length > 0 && currentIndex >= activeFilteredRoute.length) {
          card.style.display = 'none';
          document.getElementById('next-preview-banner').style.display = 'none';
          completeDeck.classList.add('visible');
          return;
       }
-
       card.style.display = 'flex';
       completeDeck.classList.remove('visible');
-
       if (activeFilteredRoute.length === 0) {
         document.getElementById('card-address').innerText = "Empty Data Segment";
         document.getElementById('card-name').innerText = "Refine constraints or reset vectors";
@@ -710,17 +475,14 @@
       document.getElementById('card-address').innerText = item.address;
       document.getElementById('card-name').innerText = item.name;
       document.getElementById('card-flags').innerText = item.flags;
-      document.getElementById('card-placement').innerText = item.placement || 'No specific parameters recorded.';
+      document.getElementById('card-placement').innerText = item.placement || 'No parameters recorded.';
       document.getElementById('route-indicator-label').innerText = item.section;
       document.getElementById('card-index').innerText = `${currentIndex + 1} / ${activeFilteredRoute.length}`;
 
-      // Set target context match text
       const targetStateMatch = (currentMode === 'Deployment') ? 'Placed' : 'Retrieved';
       const isExecuted = item.status === targetStateMatch;
       card.classList.toggle('is-placed', isExecuted);
-
-      const ribbon = document.getElementById('badge-complete-ribbon');
-      ribbon.innerText = (currentMode === 'Deployment') ? '✓ Placed' : '✓ Retrieved';
+      document.getElementById('badge-complete-ribbon').innerText = (currentMode === 'Deployment') ? '✓ Placed' : '✓ Retrieved';
 
       const dBtn = document.getElementById('deploy-btn');
       const dLabel = document.getElementById('deploy-btn-label');
@@ -732,120 +494,68 @@
         dLabel.innerText = (currentMode === 'Deployment') ? 'Deployed — Next House' : 'Retrieved — Next House';
       }
 
-      // Audio Alerts & Flags Checks
-      const flagBox = document.getElementById('flag-count-box');
-      if (item.flags > 1) {
-        if (typeof chimeMultiFlagAlert === 'function') chimeMultiFlagAlert();
-        flagBox.className = "stat-box flag-alert";
-      } else {
-        flagBox.className = "stat-box";
-      }
-
-      // Conduit
-      const condBox = document.getElementById('conduit-box');
+      document.getElementById('flag-count-box').className = item.flags > 1 ? "stat-box flag-alert" : "stat-box";
       document.getElementById('card-conduit').innerText = item.conduit ? "PVC Sleeve Grounded" : "Stake Install Target";
-      condBox.className = item.conduit ? "stat-box conduit-yes" : "stat-box";
+      document.getElementById('conduit-box').className = item.conduit ? "stat-box conduit-yes" : "stat-box";
 
-      // Paid Badge
       const pb = document.getElementById('paid-badge');
       pb.innerText = item.paid ? "Paid ✓" : "Collect Payment";
       pb.className = item.paid ? "badge-clear" : "badge-collect";
 
-      // Preview Deck
       const nextAddr = document.getElementById('preview-address');
-      const nextBadges = document.getElementById('preview-badges');
-      nextBadges.innerHTML = "";
+      if (currentIndex < activeFilteredRoute.length - 1) nextAddr.innerText = activeFilteredRoute[currentIndex + 1].address;
+      else nextAddr.innerText = "Final stop in this route vector.";
 
-      if (currentIndex < activeFilteredRoute.length - 1) {
-        const nextItem = activeFilteredRoute[currentIndex + 1];
-        nextAddr.innerText = nextItem.address;
-      } else {
-        nextAddr.innerText = "Final structural stop in this route vector.";
-      }
-
-      // Metrics Accounting Progress Aggregates
       const doneCount = rawRouteData.filter(r => r.status === targetStateMatch).length;
       document.getElementById('progress-text').innerText = `${doneCount}/${rawRouteData.length} Executed`;
-      const pct = rawRouteData.length > 0 ? (doneCount / rawRouteData.length) * 100 : 0;
-      document.getElementById('progress-bar-fill').style.width = pct + '%';
+      document.getElementById('progress-bar-fill').style.width = (rawRouteData.length > 0 ? (doneCount / rawRouteData.length) * 100 : 0) + '%';
     }
 
-    function deployHouse() {
-      if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return;
-      const targetState = (currentMode === 'Deployment') ? 'Placed' : 'Retrieved';
-      markStatus(targetState, '', true);
-    }
+    function deployHouse() { if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return; markStatus((currentMode === 'Deployment') ? 'Placed' : 'Retrieved', '', true); }
 
-    // ── SMART OFFLINE SYNC ENGINE CORE EXECUTION VECTORS ──
     function markStatus(status, customNote = "", withUndo = false) {
       if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return;
       const house = activeFilteredRoute[currentIndex];
       const prevStatus = house.status;
-      
       house.status = status;
       updateUI();
 
-      if (withUndo) {
-        pendingUndo = { house, prevStatus };
-        showUndoToast(`Marked as ${status}`);
-      }
+      if (withUndo) { pendingUndo = { house, prevStatus }; showUndoToast(`Marked as ${status}`); }
 
-      // Push transactional package onto the Local Offline Smart Storage Queue
-      const transactionTask = {
+      syncQueue.push({
         taskId: Date.now() + '_' + Math.random().toString(36).substr(2, 5),
         rowNum: house.rowNum,
         status: status,
         note: customNote
-      };
-      
-      syncQueue.push(transactionTask);
-      saveQueueToLocalStorage();
+      });
+      localStorage.setItem('flagOpsSyncQueue', JSON.stringify(syncQueue));
       updateSyncPillDisplay();
-
-      // Trigger hot thread processor async flush routine immediately
       flushLocalOfflineQueueToServer();
-    }
-
-    function saveQueueToLocalStorage() {
-      try { localStorage.setItem('flagOpsSyncQueue', JSON.stringify(syncQueue)); } catch(e) {}
     }
 
     function updateSyncPillDisplay() {
       const p = document.getElementById('sync-pill');
-      if (syncQueue.length === 0) {
-        p.innerText = "☁ Synced"; p.className = "sync-pill sync-ok";
-      } else {
-        p.innerText = `⚡ ${syncQueue.length} Local Buffers`; p.className = "sync-pill sync-pending";
-      }
+      p.innerText = syncQueue.length === 0 ? "☁ Synced" : `⚡ ${syncQueue.length} Local Buffers`;
+      p.className = "sync-pill " + (syncQueue.length === 0 ? "sync-ok" : "sync-pending");
     }
 
     function flushLocalOfflineQueueToServer() {
       if (syncQueue.length === 0) return;
-      
-      // Extract target atomic element
       const activeTask = syncQueue[0];
 
-      google.script.run
-        .withSuccessHandler(function(response) {
-          if (response && response.success) {
-            // Remove the package smoothly upon explicit confirmation receipt
+      fetch(`${API_URL}?action=updateFlagStatus&rowNum=${activeTask.rowNum}&status=${encodeURIComponent(activeTask.status)}&note=${encodeURIComponent(activeTask.note)}`)
+        .then(res => res.json())
+        .then(res => {
+          if (res && res.success) {
             syncQueue = syncQueue.filter(t => t.taskId !== activeTask.taskId);
-            saveQueueToLocalStorage();
+            localStorage.setItem('flagOpsSyncQueue', JSON.stringify(syncQueue));
             updateSyncPillDisplay();
-            
-            // Recurse to empty downstream operations
             flushLocalOfflineQueueToServer();
-          } else {
-            console.warn("Write rejected by backend server. Buffering operational logs.");
           }
         })
-        .withFailureHandler(function(err) {
-           console.log("Network transport offline. Queue execution paused.");
-        })
-        .updateFlagStatus(activeTask.rowNum, activeTask.status, activeTask.note);
+        .catch(err => console.log("Database write buffered offline. Syncing paused."));
     }
 
-    // ── IN-APP NEW CUSTOMER INGESTION DISPATCH ──
     function submitNewCustomerField() {
       const sector = document.getElementById('cust-sector').value.trim();
       const address = document.getElementById('cust-address').value.trim();
@@ -855,148 +565,63 @@
       const placement = document.getElementById('cust-placement').value.trim();
       const paid = document.getElementById('cust-paid').checked;
 
-      if (!sector || !address) { showError("Sector and Street Address required for mapping."); return; }
-      showLoading('Pushing new field ingest records...');
+      if (!sector || !address) { showError("Sector and Street Address required."); return; }
+      showLoading('Pushing entry records...');
 
       const payload = { sector, address, name, flags, conduit, placement, paid };
 
-      google.script.run
-        .withSuccessHandler(function(res) {
+      fetch(`${API_URL}?action=addNewCustomer&payload=${encodeURIComponent(JSON.stringify(payload))}`)
+        .then(res => res.json())
+        .then(res => {
           hideLoading();
           if (res.success) {
-            // Wipe inputs
             document.getElementById('cust-address').value = "";
             document.getElementById('cust-name').value = "";
             document.getElementById('cust-placement').value = "";
-            alert("Customer added successfully!");
+            alert("Customer saved to main sheet successfully!");
             switchView('setup-screen');
-          } else {
-            showError("Ingestion write rejected: " + res.error);
-          }
+          } else { showError("Ingestion write rejected: " + res.error); }
         })
-        .withFailureHandler(function(err) {
-          hideLoading();
-          showError("Ingestion failure: " + err.message);
-        })
-        .addNewCustomer(payload);
+        .catch(err => { hideLoading(); showError("Network timeout creating customer."); });
     }
 
-    // ── UNDO OVERLAY ENGINE INTEROP CONTEXT ──
     function showUndoToast(msg) {
       if (undoTimer) clearTimeout(undoTimer);
       document.getElementById('undo-toast-msg').innerText = msg;
-      const toast = document.getElementById('undo-toast');
-      toast.classList.add('visible');
-
+      document.getElementById('undo-toast').classList.add('visible');
       const circle = document.getElementById('undo-timer-circle');
-      const circ = 75.4;
       circle.style.transition = 'none'; circle.style.strokeDashoffset = '0';
-      
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          circle.style.transition = `stroke-dashoffset 3s linear`;
-          circle.style.strokeDashoffset = circ;
-        });
-      });
-
-      undoTimer = setTimeout(() => {
-        dismissUndoToast();
-        // Standard automated downstream navigation pacing shifts
-        if (currentIndex < activeFilteredRoute.length) nextHouse();
-      }, 1500);
+      requestAnimationFrame(() => { requestAnimationFrame(() => { circle.style.transition = `stroke-dashoffset 3s linear`; circle.style.strokeDashoffset = 75.4; }); });
+      undoTimer = setTimeout(() => { dismissUndoToast(); if (currentIndex < activeFilteredRoute.length) nextHouse(); }, 3000);
     }
-
-    function dismissUndoToast() {
-      document.getElementById('undo-toast').classList.remove('visible');
-      if (undoTimer) { clearTimeout(undoTimer); undoTimer = null; }
-    }
+    function dismissUndoToast() { document.getElementById('undo-toast').classList.remove('visible'); if (undoTimer) { clearTimeout(undoTimer); undoTimer = null; } }
 
     function undoLastAction() {
       if (!pendingUndo) return;
       const { house, prevStatus } = pendingUndo;
       house.status = prevStatus;
-      
-      // Append matching transactional override packet onto sync stack
-      syncQueue.push({
-        taskId: Date.now() + '_undo',
-        rowNum: house.rowNum,
-        status: prevStatus,
-        note: "User Override Reversal Trigger"
-      });
-      saveQueueToLocalStorage();
+      syncQueue.push({ taskId: Date.now() + '_undo', rowNum: house.rowNum, status: prevStatus, note: "User Override Reversal Trigger" });
+      localStorage.setItem('flagOpsSyncQueue', JSON.stringify(syncQueue));
       updateSyncPillDisplay();
-      
-      dismissUndoToast();
-      updateUI();
-      flushLocalOfflineQueueToServer();
+      dismissUndoToast(); updateUI(); flushLocalOfflineQueueToServer();
     }
 
-    function openIssueDrawer() {
-      if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return;
-      document.getElementById('modal-address-label').innerText = activeFilteredRoute[currentIndex].address;
-      document.getElementById('issue-modal').classList.add('open');
-    }
+    function openIssueDrawer() { if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return; document.getElementById('modal-address-label').innerText = activeFilteredRoute[currentIndex].address; document.getElementById('issue-modal').classList.add('open'); }
     function closeIssueDrawer() { document.getElementById('issue-modal').classList.remove('open'); }
-    function selectIssueMacro(btn, text) {
-      document.querySelectorAll('.macro-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      document.getElementById('custom-issue-text').value = text;
-    }
-    function submitIssueLog() {
-      const note = document.getElementById('custom-issue-text').value.trim();
-      closeIssueDrawer();
-      markStatus('Skipped/Issue', note || "Flag skipped due to field constraint.");
-      setTimeout(() => { if (currentIndex < activeFilteredRoute.length) nextHouse(); }, 200);
-    }
+    function selectIssueMacro(btn, text) { document.querySelectorAll('.macro-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); document.getElementById('custom-issue-text').value = text; }
+    function submitIssueLog() { const note = document.getElementById('custom-issue-text').value.trim(); closeIssueDrawer(); markStatus('Skipped/Issue', note || "Flag skipped."); setTimeout(() => { if (currentIndex < activeFilteredRoute.length) nextHouse(); }, 200); }
 
-    // ── NAVIGATION CONTROLS WITH RACE CONDITION SUPPRESSION ──
-    function nextHouse() {
-      dismissUndoToast();
-      if (currentIndex < activeFilteredRoute.length) {
-        currentIndex++;
-        updateUI();
-        animateCard('swipe-left');
-      }
-    }
+    function nextHouse() { dismissUndoToast(); if (currentIndex < activeFilteredRoute.length) { currentIndex++; updateUI(); animateCard('swipe-left'); } }
+    function prevHouse() { dismissUndoToast(); if (currentIndex > 0) { currentIndex--; updateUI(); animateCard('swipe-right'); } }
+    function animateCard(cls) { const card = document.getElementById('main-data-card'); card.classList.remove('swipe-left', 'swipe-right'); void card.offsetWidth; card.classList.add(cls); setTimeout(() => card.classList.remove(cls), 300); }
+    function returnToMenu() { dismissUndoToast(); document.getElementById('search-bar').value = ""; executeSearchFilter(); switchView('setup-screen'); }
 
-    function prevHouse() {
-      dismissUndoToast();
-      if (currentIndex > 0) {
-        currentIndex--;
-        updateUI();
-        animateCard('swipe-right');
-      }
-    }
-
-    function animateCard(cls) {
-      const card = document.getElementById('main-data-card');
-      card.classList.remove('swipe-left', 'swipe-right');
-      void card.offsetWidth;
-      card.classList.add(cls);
-      setTimeout(() => card.classList.remove(cls), 300);
-    }
-
-    function returnToMenu() {
-      dismissUndoToast();
-      document.getElementById('search-bar').value = "";
-      executeSearchFilter();
-      switchView('setup-screen');
-    }
-
-    // Swipe Bindings
     (function() {
       const card = document.getElementById('main-data-card');
       let startX = 0, startY = 0, moved = false;
       card.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; moved = false; }, { passive: true });
       card.addEventListener('touchmove', e => { moved = true; }, { passive: true });
-      card.addEventListener('touchend', e => {
-        if (!moved) return;
-        const dx = e.changedTouches[0].clientX - startX;
-        const dy = e.changedTouches[0].clientY - startY;
-        if (Math.abs(dx) > Math.abs(dy) * 1.5 && Math.abs(dx) > 40) {
-          if (dx < 0) nextHouse(); else prevHouse();
-        }
-      }, { passive: true });
+      card.addEventListener('touchend', e => { if (!moved) return; const dx = e.changedTouches[0].clientX - startX; const dy = e.changedTouches[0].clientY - startY; if (Math.abs(dx) > Math.abs(dy) * 1.5 && Math.abs(dx) > 40) { if (dx < 0) nextHouse(); else prevHouse(); } }, { passive: true });
     })();
   </script>
 </body>
