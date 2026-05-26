@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Favicon: Flag emoji -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🚩</text></svg>">
+  
   <style>
     :root {
       --bg: #0e0e0f;
@@ -78,7 +82,7 @@
     .sync-pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); }
     .sync-ok { background: var(--green-bg); color: var(--green); border-color: var(--green-dim); }
     .sync-pending { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-dim); }
-    #progress-bar-wrap { height: 3px; background: var(--faint); width: 100%; display: none; flex-shrink: 0; }
+    #progress-bar-wrap { background: var(--faint); width: 100%; display: none; flex-shrink: 0; padding: 6px 12px; gap: 4px; flex-direction: column; }
     #progress-bar-fill { height: 100%; background: var(--theme-color); width: 0%; transition: width 0.4s ease; }
     #error-banner { display: none; background: var(--red-bg); border-bottom: 1px solid var(--red-dim); padding: 10px 16px; font-size: 13px; color: var(--red); font-weight: 600; align-items: center; gap: 10px; flex-shrink: 0; }
     #error-banner.visible { display: flex; }
@@ -197,6 +201,28 @@
     .status-retrieved { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-dim); }
     .status-pending { background: var(--faint); color: var(--muted); border-color: var(--border); }
     .status-issue { background: var(--red-bg); color: var(--red); border-color: var(--red-dim); }
+    
+    /* REBAR TRACKING: Dual-track status display */
+    .status-track-container { display: flex; gap: 6px; margin-top: 12px; margin-bottom: 12px; }
+    .status-track { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 8px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); }
+    .track-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.5px; }
+    .status-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; border: 1px solid; white-space: nowrap; }
+    .status-deployed { background: #2d1a0d; color: #ff8555; border-color: #4d2a15; }
+    
+    /* REBAR: Button styling */
+    .btn-deploy.rebar-mode { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); border-color: #ff6b35; }
+    .btn-deploy.rebar-mode:active { background: linear-gradient(135deg, #e85520 0%, #e07d00 100%); }
+    .btn-deploy.rebar-mode.already-placed { background: #2d1a0d; border-color: #4d2a15; opacity: 0.6; }
+    
+    /* REBAR: Progress bars */
+    .progress-track { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .progress-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: var(--muted); min-width: 70px; }
+    .progress-bar-mini { flex: 1; height: 4px; background: var(--faint); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--green); transition: width 0.3s ease; }
+    #rebar-progress-fill { background: #ff6b35; }
+    
+    /* REBAR: List item dual status */
+    .list-item-statuses { display: flex; gap: 4px; flex-direction: column; align-items: flex-end; }
   </style>
 </head>
 <body>
@@ -218,13 +244,28 @@
   <header id="app-header" style="display: none;">
     <div class="header-logo" id="header-brand">Flag Ops</div>
     <div class="header-right">
-      <button onclick="document.body.classList.toggle('light-mode')" class="nav-btn" style="min-width:auto; padding:4px 8px; font-size:11px; border:1px solid var(--border); background:var(--faint); margin-right:4px; font-weight:700;">☀️ Contrast</button>
+      <button onclick="document.body.classList.toggle('light-mode')" class="nav-btn" style="min-width:auto; padding:4px 8px; font-size:11px; border:1px solid var(--border); background:var(--faint); margin-right:4px; font-weight:700;" aria-label="Toggle light mode">☀️ Contrast</button>
+      <span id="offline-indicator" class="sync-pill" style="display:none; background:var(--red-bg); color:var(--red); border-color:var(--red-dim);">📡 Offline</span>
       <span id="sync-pill" class="sync-pill sync-ok">☁ Connected</span>
       <span id="progress-text" class="progress-pill">0/0 Done</span>
+      <button onclick="handleLogout()" class="nav-btn" style="min-width:auto; padding:4px 8px; font-size:11px; border:1px solid var(--border); background:var(--faint); margin-left:4px; font-weight:700;" aria-label="Logout">🚪 Logout</button>
     </div>
   </header>
 
-  <div id="progress-bar-wrap"><div id="progress-bar-fill"></div></div>
+  <div id="progress-bar-wrap">
+    <div class="progress-track">
+      <span class="progress-label">🚩 FLAGS</span>
+      <div class="progress-bar-mini">
+        <div id="flag-progress-fill" class="progress-fill"></div>
+      </div>
+    </div>
+    <div class="progress-track">
+      <span class="progress-label">⚙️ REBAR</span>
+      <div class="progress-bar-mini">
+        <div id="rebar-progress-fill" class="progress-fill"></div>
+      </div>
+    </div>
+  </div>
   <div id="error-banner"><span id="error-msg"></span><button onclick="dismissError()">✕</button></div>
 
   <main id="setup-screen" style="display: none;">
@@ -288,12 +329,12 @@
   <main id="app-screen">
     <div class="search-wrap">
       <span class="search-icon">⌕</span>
-      <input type="text" id="search-bar" oninput="executeSearchFilter()" placeholder="Search address or name...">
-      <button onclick="clearSearch()" id="clear-search-btn">Clear</button>
+      <input type="text" id="search-bar" oninput="executeSearchFilter()" placeholder="Search address or name..." aria-label="Search stops by address or name">
+      <button onclick="clearSearch()" id="clear-search-btn" aria-label="Clear search">Clear</button>
     </div>
     
     <div style="display: flex; gap: 8px; width: 100%; margin-top: 6px; align-items: center;">
-      <button onclick="openRouteListDrawer()" class="map-nav-btn" style="padding: 6px 12px; font-size: 11px; height: 32px; width: 100%; justify-content: center; background: var(--surface); border-color: var(--border);">📋 View Route List Overview</button>
+      <button onclick="openRouteListDrawer()" class="map-nav-btn" style="padding: 6px 12px; font-size: 11px; height: 32px; width: 100%; justify-content: center; background: var(--surface); border-color: var(--border);" aria-label="View complete route list">📋 View Route List Overview</button>
     </div>
     <div id="filter-indicator"></div>
 
@@ -306,7 +347,7 @@
           </div>
           <div class="address-row">
             <div id="card-address">Loading...</div>
-            <button onclick="triggerSystemMapRedirect()" class="map-nav-btn">🗺 Map</button>
+            <button onclick="triggerSystemMapRedirect()" class="map-nav-btn" aria-label="Open address in Maps">🗺 Map</button>
           </div>
           <div id="card-name">–</div>
         </div>
@@ -329,19 +370,39 @@
         <p id="card-placement">No directions given.</p>
       </div>
 
+      <!-- DUAL STATUS TRACKING: Shows both flags and rebar status -->
+      <div class="status-track-container">
+        <div class="status-track">
+          <span class="track-label">🚩 FLAGS</span>
+          <span id="flag-status-badge" class="status-badge status-pending">Pending</span>
+        </div>
+        <div class="status-track">
+          <span class="track-label">⚙️ REBAR</span>
+          <span id="rebar-status-badge" class="status-badge status-pending">Pending</span>
+        </div>
+      </div>
+
       <div class="actions">
-        <button id="deploy-btn" onclick="deployHouse()" class="btn-deploy">
-          <span class="btn-deploy-icon">🏁</span>
-          <span id="deploy-btn-label">Action Completed</span>
+        <!-- Flags Team Button -->
+        <button id="flag-deploy-btn" onclick="deployFlags()" class="btn-deploy" style="margin-bottom: 8px;">
+          <span class="btn-deploy-icon">🚩</span>
+          <span id="flag-btn-label" class="btn-deploy-label">Deploy Flags — Next</span>
         </button>
+        
+        <!-- Rebar Team Button -->
+        <button id="rebar-deploy-btn" onclick="deployRebar()" class="btn-deploy rebar-mode">
+          <span class="btn-deploy-icon">⚙️</span>
+          <span id="rebar-btn-label" class="btn-deploy-label">Deploy Rebar — Next</span>
+        </button>
+        
         <div class="secondary-btns">
-          <button onclick="openIssueDrawer()" class="btn-danger">⚠ Log Issue</button>
-          <button onclick="markStatus('Pending')" class="btn-ghost">Reset Pending</button>
+          <button onclick="openIssueDrawer()" class="btn-danger" aria-label="Log an issue for this stop">⚠ Log Issue</button>
+          <button onclick="markStatus(STATUS.PENDING)" class="btn-ghost" aria-label="Reset status to pending">Reset Pending</button>
         </div>
         <div class="nav-row">
-          <button onclick="prevHouse()" class="nav-btn">← Prev</button>
+          <button onclick="prevHouse()" class="nav-btn" aria-label="Previous stop">← Prev</button>
           <span id="card-index">0 / 0</span>
-          <button onclick="nextHouse()" class="nav-btn">Next →</button>
+          <button onclick="nextHouse()" class="nav-btn" aria-label="Next stop">Next →</button>
         </div>
         <div class="swipe-hint">← swipe card to navigate →</div>
       </div>
@@ -414,6 +475,28 @@
     // ⚠️ PASTE YOUR COPIED GOOGLE APPS SCRIPT WEB APP URL BETWEEN THESE QUOTES:
     const API_URL = "https://script.google.com/macros/s/AKfycbzz9FhWbq2B2y4dc8W9TVPvJbJmioGb-ptzjW7CJWjB1BgLNuSGep2SdLn5sVh7aL2uCQ/exec"; 
 
+    // STATUS CONSTANTS: Eliminates magic strings throughout the codebase
+    const STATUS = {
+      PLACED: 'Placed',
+      RETRIEVED: 'Retrieved',
+      SKIPPED: 'Skipped/Issue',
+      PENDING: 'Pending'
+    };
+    
+    const REBAR_STATUS = {
+      DEPLOYED: 'Deployed',
+      RETRIEVED: 'Retrieved',
+      PENDING: 'Pending',
+      ISSUE: 'Issue'
+    };
+    
+    const CONFIG = {
+      SYNC_INTERVAL_MS: 12000,
+      MAX_RETRY_COUNT: 5,
+      RETRY_BACKOFF_BASE_MS: 2000,
+      UNDO_TIMEOUT_MS: 7000
+    };
+
     let rawRouteData = [];
     let activeFilteredRoute = [];
     let currentIndex = 0;
@@ -421,6 +504,7 @@
     let undoTimer = null;
     let pendingUndo = null;
     let syncQueue = JSON.parse(localStorage.getItem('flagOpsSyncQueue')) || [];
+    let syncIntervalId = null; // Track interval for proper cleanup
     
     // Feature 3: Wake Lock variable definition
     let wakeLock = null;
@@ -475,15 +559,29 @@
       const inputPass = document.getElementById('auth-password').value;
       const errorMsg = document.getElementById('auth-error-msg');
       
-      if (inputPass === 'sas4midland') {
-        errorMsg.style.display = 'none';
-        sessionStorage.setItem('flagOpsAuthToken', 'verified_session');
-        document.getElementById('auth-screen').style.display = 'none';
-        launchOperationalDashboard();
-      } else {
-        errorMsg.style.display = 'block';
-        document.getElementById('auth-password').value = '';
-      }
+      // SECURITY: Server-side authentication instead of client-side password check
+      showLoading('Verifying credentials...');
+      
+      google.script.run
+        .withSuccessHandler(function(isValid) {
+          hideLoading();
+          if (isValid) {
+            errorMsg.style.display = 'none';
+            sessionStorage.setItem('flagOpsAuthToken', 'verified_session');
+            document.getElementById('auth-screen').style.display = 'none';
+            launchOperationalDashboard();
+          } else {
+            errorMsg.style.display = 'block';
+            document.getElementById('auth-password').value = '';
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          errorMsg.textContent = '❌ Authentication service unavailable';
+          errorMsg.style.display = 'block';
+          console.error('Auth error:', error);
+        })
+        .authenticateUser(inputPass);
     }
 
     function launchOperationalDashboard() {
@@ -492,7 +590,10 @@
       
       showLoading('Loading tracking paths...');
       updateSyncPillDisplay();
-      setInterval(flushLocalOfflineQueueToServer, 12000);
+      
+      // Store interval ID for proper cleanup on logout
+      if (syncIntervalId) clearInterval(syncIntervalId);
+      syncIntervalId = setInterval(flushLocalOfflineQueueToServer, CONFIG.SYNC_INTERVAL_MS);
 
       fetch(`${API_URL}?action=getRouteNames`)
         .then(res => res.json())
@@ -504,6 +605,33 @@
         .catch(err => { hideLoading(); showError("Network issue reaching Google. Check deployment settings."); });
     }
 
+    // CLEANUP: Proper logout with resource cleanup
+    function handleLogout() {
+      // Clear sync interval to prevent memory leak
+      if (syncIntervalId) {
+        clearInterval(syncIntervalId);
+        syncIntervalId = null;
+      }
+      
+      // Release wake lock
+      releaseWakeLock();
+      
+      // Clear session
+      sessionStorage.removeItem('flagOpsAuthToken');
+      
+      // Reset UI
+      document.getElementById('app-header').style.display = 'none';
+      document.getElementById('setup-screen').style.display = 'none';
+      document.getElementById('app-screen').classList.remove('visible');
+      document.getElementById('auth-screen').style.display = '';
+      document.getElementById('auth-password').value = '';
+      
+      // Reset data
+      rawRouteData = [];
+      activeFilteredRoute = [];
+      currentIndex = 0;
+    }
+
     function switchView(targetScreenId) {
       document.getElementById('setup-screen').style.display = 'none';
       document.getElementById('customer-screen').style.display = 'none';
@@ -511,7 +639,7 @@
       document.getElementById('progress-bar-wrap').style.display = 'none';
       if (targetScreenId === 'app-screen') {
         document.getElementById('app-screen').classList.add('visible');
-        document.getElementById('progress-bar-wrap').style.display = 'block';
+        document.getElementById('progress-bar-wrap').style.display = 'flex';
       } else {
         document.getElementById(targetScreenId).style.display = '';
       }
@@ -561,7 +689,11 @@
         .then(res => {
           hideLoading();
           if (res.success) {
-            rawRouteData = res.data;
+            // Defensively initialize rebarStatus for sheets without the column
+            rawRouteData = res.data.map(row => ({
+              ...row,
+              rebarStatus: row.rebarStatus || REBAR_STATUS.PENDING
+            }));
             executeSearchFilter();
             switchView('app-screen');
             // Feature 3: Engage Wake lock upon entering active field deployment map
@@ -619,20 +751,10 @@
       document.getElementById('route-indicator-label').innerText = item.section;
       document.getElementById('card-index').innerText = `${currentIndex + 1} / ${activeFilteredRoute.length}`;
 
-      const targetStateMatch = (currentMode === 'Deployment') ? 'Placed' : 'Retrieved';
+      const targetStateMatch = (currentMode === 'Deployment') ? STATUS.PLACED : STATUS.RETRIEVED;
       const isExecuted = item.status === targetStateMatch;
       card.classList.toggle('is-placed', isExecuted);
       document.getElementById('badge-complete-ribbon').innerText = (currentMode === 'Deployment') ? '✓ Placed' : '✓ Retrieved';
-
-      const dBtn = document.getElementById('deploy-btn');
-      const dLabel = document.getElementById('deploy-btn-label');
-      if (isExecuted) {
-        dBtn.classList.add('already-placed');
-        dLabel.innerText = `✓ Already ${targetStateMatch}`;
-      } else {
-        dBtn.classList.remove('already-placed');
-        dLabel.innerText = (currentMode === 'Deployment') ? 'Deployed — Next House' : 'Retrieved — Next House';
-      }
 
       document.getElementById('flag-count-box').className = item.flags > 1 ? "stat-box flag-alert" : "stat-box";
       document.getElementById('card-conduit').innerText = item.conduit ? "PVC Sleeve Grounded" : "Stake Install Target";
@@ -646,36 +768,148 @@
       if (currentIndex < activeFilteredRoute.length - 1) nextAddr.innerText = activeFilteredRoute[currentIndex + 1].address;
       else nextAddr.innerText = "Final stop in this route vector.";
 
-      const doneCount = rawRouteData.filter(r => r.status === targetStateMatch).length;
-      document.getElementById('progress-text').innerText = `${doneCount}/${rawRouteData.length} Executed`;
-      document.getElementById('progress-bar-fill').style.width = (rawRouteData.length > 0 ? (doneCount / rawRouteData.length) * 100 : 0) + '%';
+      // DUAL PROGRESS: Calculate both flags and rebar completion
+      const flagDoneCount = rawRouteData.filter(r => {
+        const target = (currentMode === 'Deployment') ? STATUS.PLACED : STATUS.RETRIEVED;
+        return r.status === target;
+      }).length;
+      
+      const rebarDoneCount = rawRouteData.filter(r => {
+        const target = (currentMode === 'Deployment') ? REBAR_STATUS.DEPLOYED : REBAR_STATUS.RETRIEVED;
+        return r.rebarStatus === target;
+      }).length;
+      
+      const total = rawRouteData.length;
+      document.getElementById('progress-text').innerText = `Flags: ${flagDoneCount}/${total} · Rebar: ${rebarDoneCount}/${total}`;
+      document.getElementById('flag-progress-fill').style.width = (total > 0 ? (flagDoneCount / total) * 100 : 0) + '%';
+      document.getElementById('rebar-progress-fill').style.width = (total > 0 ? (rebarDoneCount / total) * 100 : 0) + '%';
+      
+      // UPDATE STATUS BADGES
+      const flagBadge = document.getElementById('flag-status-badge');
+      if (item.status === STATUS.PLACED) {
+        flagBadge.className = 'status-badge status-placed';
+        flagBadge.textContent = 'Placed';
+      } else if (item.status === STATUS.RETRIEVED) {
+        flagBadge.className = 'status-badge status-retrieved';
+        flagBadge.textContent = 'Retrieved';
+      } else if (item.status && item.status.includes('Issue')) {
+        flagBadge.className = 'status-badge status-issue';
+        flagBadge.textContent = 'Issue';
+      } else {
+        flagBadge.className = 'status-badge status-pending';
+        flagBadge.textContent = 'Pending';
+      }
+      
+      const rebarBadge = document.getElementById('rebar-status-badge');
+      if (item.rebarStatus === REBAR_STATUS.DEPLOYED) {
+        rebarBadge.className = 'status-badge status-deployed';
+        rebarBadge.textContent = 'Deployed';
+      } else if (item.rebarStatus === REBAR_STATUS.RETRIEVED) {
+        rebarBadge.className = 'status-badge status-retrieved';
+        rebarBadge.textContent = 'Retrieved';
+      } else if (item.rebarStatus && item.rebarStatus.includes('Issue')) {
+        rebarBadge.className = 'status-badge status-issue';
+        rebarBadge.textContent = 'Issue';
+      } else {
+        rebarBadge.className = 'status-badge status-pending';
+        rebarBadge.textContent = 'Pending';
+      }
+      
+      // UPDATE BUTTON STATES based on both tracks
+      const flagBtn = document.getElementById('flag-deploy-btn');
+      const rebarBtn = document.getElementById('rebar-deploy-btn');
+      const flagLabel = document.getElementById('flag-btn-label');
+      const rebarLabel = document.getElementById('rebar-btn-label');
+      
+      const flagDone = (currentMode === 'Deployment') ? 
+        (item.status === STATUS.PLACED) : (item.status === STATUS.RETRIEVED);
+      const rebarDone = (currentMode === 'Deployment') ? 
+        (item.rebarStatus === REBAR_STATUS.DEPLOYED) : (item.rebarStatus === REBAR_STATUS.RETRIEVED);
+      
+      if (flagDone) {
+        flagBtn.classList.add('already-placed');
+        flagLabel.textContent = '✓ Flags Done';
+      } else {
+        flagBtn.classList.remove('already-placed');
+        flagLabel.textContent = (currentMode === 'Deployment') ? 'Deploy Flags — Next' : 'Retrieve Flags — Next';
+      }
+      
+      if (rebarDone) {
+        rebarBtn.classList.add('already-placed');
+        rebarLabel.textContent = '✓ Rebar Done';
+      } else {
+        rebarBtn.classList.remove('already-placed');
+        rebarLabel.textContent = (currentMode === 'Deployment') ? 'Deploy Rebar — Next' : 'Retrieve Rebar — Next';
+      }
     }
 
-    // Feature 4: Injected Haptic feedback confirmations into physical clicks
+    // DUAL-TRACK: Separate functions for flags and rebar deployment
+    function deployFlags() {
+      if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return;
+      if (navigator.vibrate) { navigator.vibrate(50); }
+      markStatusDual('flag', (currentMode === 'Deployment') ? STATUS.PLACED : STATUS.RETRIEVED, '', true);
+    }
+    
+    function deployRebar() {
+      if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return;
+      if (navigator.vibrate) { navigator.vibrate(60); } // Slightly longer vibration
+      markStatusDual('rebar', (currentMode === 'Deployment') ? REBAR_STATUS.DEPLOYED : REBAR_STATUS.RETRIEVED, '', true);
+    }
+    
+    // LEGACY: Keep for backward compatibility, now defaults to flags
     function deployHouse() { 
-      if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return; 
-      if (navigator.vibrate) { navigator.vibrate(50); } 
-      markStatus((currentMode === 'Deployment') ? 'Placed' : 'Retrieved', '', true); 
+      deployFlags();
     }
 
-    function markStatus(status, customNote = "", withUndo = false) {
+    function markStatusDual(trackType, status, customNote = "", withUndo = false) {
       if (activeFilteredRoute.length === 0 || currentIndex >= activeFilteredRoute.length) return;
       const house = activeFilteredRoute[currentIndex];
-      const prevStatus = house.status;
-      house.status = status;
+      
+      // Store previous state for undo
+      const prevStatus = trackType === 'flag' ? house.status : house.rebarStatus;
+      
+      // Update local state
+      if (trackType === 'flag') {
+        house.status = status;
+      } else {
+        house.rebarStatus = status;
+      }
+      
+      // Update matching item in rawRouteData
+      const matchingHouse = rawRouteData.find(r => r.rowNum === house.rowNum);
+      if (matchingHouse) {
+        if (trackType === 'flag') {
+          matchingHouse.status = status;
+        } else {
+          matchingHouse.rebarStatus = status;
+        }
+      }
+      
       updateUI();
-
-      if (withUndo) { pendingUndo = { house, prevStatus }; showUndoToast(`Marked as ${status}`); }
-
+      
+      if (withUndo) {
+        const trackLabel = trackType === 'flag' ? 'Flags' : 'Rebar';
+        pendingUndo = { house, prevStatus, trackType };
+        showUndoToast(`${trackLabel}: ${status}`);
+      }
+      
+      // Queue sync with type parameter
+      const taskId = Date.now() + '-' + house.rowNum + '-' + trackType;
       syncQueue.push({
-        taskId: Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        taskId,
         rowNum: house.rowNum,
-        status: status,
-        note: customNote
+        status,
+        note: customNote,
+        statusType: trackType  // NEW: Tell backend which track to update
       });
       localStorage.setItem('flagOpsSyncQueue', JSON.stringify(syncQueue));
       updateSyncPillDisplay();
       flushLocalOfflineQueueToServer();
+    }
+
+    // LEGACY: Old markStatus function, now routes to flags track
+    function markStatus(status, customNote = "", withUndo = false) {
+      markStatusDual('flag', status, customNote, withUndo);
     }
 
     function updateSyncPillDisplay() {
@@ -709,15 +943,26 @@
           if (navigator.vibrate) navigator.vibrate(30);
         };
 
-        let sClass = 'status-pending';
-        let sText = 'Pending';
-        if (item.status === 'Placed') { sClass = 'status-placed'; sText = 'Placed'; }
-        else if (item.status === 'Retrieved') { sClass = 'status-retrieved'; sText = 'Retrieved'; }
-        else if (item.status && item.status.includes('Issue')) { sClass = 'status-issue'; sText = 'Issue'; }
+        // Flag status
+        let flagClass = 'status-pending';
+        let flagText = STATUS.PENDING;
+        if (item.status === STATUS.PLACED) { flagClass = 'status-placed'; flagText = STATUS.PLACED; }
+        else if (item.status === STATUS.RETRIEVED) { flagClass = 'status-retrieved'; flagText = STATUS.RETRIEVED; }
+        else if (item.status && item.status.includes('Issue')) { flagClass = 'status-issue'; flagText = 'Issue'; }
+        
+        // Rebar status
+        let rebarClass = 'status-pending';
+        let rebarText = REBAR_STATUS.PENDING;
+        if (item.rebarStatus === REBAR_STATUS.DEPLOYED) { rebarClass = 'status-deployed'; rebarText = 'Deployed'; }
+        else if (item.rebarStatus === REBAR_STATUS.RETRIEVED) { rebarClass = 'status-retrieved'; rebarText = 'Retrieved'; }
+        else if (item.rebarStatus && item.rebarStatus.includes('Issue')) { rebarClass = 'status-issue'; rebarText = 'Issue'; }
 
         div.innerHTML = `
           <div class="list-item-address">${index + 1}. ${item.address}</div>
-          <div class="list-item-status ${sClass}">${sText}</div>
+          <div class="list-item-statuses">
+            <div class="list-item-status ${flagClass}">🚩 ${flagText}</div>
+            <div class="list-item-status ${rebarClass}">⚙️ ${rebarText}</div>
+          </div>
         `;
         container.appendChild(div);
       });
@@ -726,8 +971,11 @@
     function flushLocalOfflineQueueToServer() {
       if (syncQueue.length === 0) return;
       const activeTask = syncQueue[0];
+      
+      // Default to 'flag' for backward compatibility with old queue items
+      const statusType = activeTask.statusType || 'flag';
 
-      fetch(`${API_URL}?action=updateFlagStatus&rowNum=${activeTask.rowNum}&status=${encodeURIComponent(activeTask.status)}&note=${encodeURIComponent(activeTask.note)}`)
+      fetch(`${API_URL}?action=updateFlagStatus&rowNum=${activeTask.rowNum}&status=${encodeURIComponent(activeTask.status)}&note=${encodeURIComponent(activeTask.note)}&statusType=${statusType}`)
         .then(res => res.json())
         .then(res => {
           if (res && res.success) {
@@ -744,15 +992,42 @@
       const sector = document.getElementById('cust-sector').value.trim();
       const address = document.getElementById('cust-address').value.trim();
       const name = document.getElementById('cust-name').value.trim();
-      const flags = parseInt(document.getElementById('cust-flags').value) || 1;
+      const flagsRaw = document.getElementById('cust-flags').value.trim();
       const conduit = document.getElementById('cust-conduit').checked;
       const placement = document.getElementById('cust-placement').value.trim();
       const paid = document.getElementById('cust-paid').checked;
 
-      if (!sector || !address) { showError("Sector and Street Address required."); return; }
+      // INPUT VALIDATION: Ensure critical fields are present
+      if (!sector || !address) { 
+        showError("Sector and Street Address required."); 
+        return; 
+      }
+      
+      // VALIDATION: Numeric field must be positive integer
+      const flags = parseInt(flagsRaw);
+      if (isNaN(flags) || flags <= 0 || flags > 100) {
+        showError("Flag count must be between 1 and 100.");
+        return;
+      }
+      
+      // BASIC XSS PROTECTION: Strip HTML tags from text inputs
+      const sanitize = (str) => str.replace(/<[^>]*>/g, '');
+      const safeSector = sanitize(sector);
+      const safeAddress = sanitize(address);
+      const safeName = sanitize(name);
+      const safePlacement = sanitize(placement);
+      
       showLoading('Pushing entry records...');
 
-      const payload = { sector, address, name, flags, conduit, placement, paid };
+      const payload = { 
+        sector: safeSector, 
+        address: safeAddress, 
+        name: safeName, 
+        flags, 
+        conduit, 
+        placement: safePlacement, 
+        paid 
+      };
 
       fetch(`${API_URL}?action=addNewCustomer&payload=${encodeURIComponent(JSON.stringify(payload))}`)
         .then(res => res.json())
@@ -762,11 +1037,15 @@
             document.getElementById('cust-address').value = "";
             document.getElementById('cust-name').value = "";
             document.getElementById('cust-placement').value = "";
+            document.getElementById('cust-flags').value = "1";
             alert("Customer saved to main sheet successfully!");
             switchView('setup-screen');
           } else { showError("Ingestion write rejected: " + res.error); }
         })
-        .catch(err => { hideLoading(); showError("Network timeout creating customer."); });
+        .catch(err => { 
+          hideLoading(); 
+          showError("Network timeout creating customer. Check connection and try again."); 
+        });
     }
 
     function showUndoToast(msg) {
@@ -782,9 +1061,32 @@
 
     function undoLastAction() {
       if (!pendingUndo) return;
-      const { house, prevStatus } = pendingUndo;
-      house.status = prevStatus;
-      syncQueue.push({ taskId: Date.now() + '_undo', rowNum: house.rowNum, status: prevStatus, note: "User Override Reversal Trigger" });
+      const { house, prevStatus, trackType } = pendingUndo;
+      
+      // Restore the correct track
+      if (trackType === 'flag') {
+        house.status = prevStatus;
+      } else {
+        house.rebarStatus = prevStatus;
+      }
+      
+      // Update matching item in rawRouteData
+      const matchingHouse = rawRouteData.find(r => r.rowNum === house.rowNum);
+      if (matchingHouse) {
+        if (trackType === 'flag') {
+          matchingHouse.status = prevStatus;
+        } else {
+          matchingHouse.rebarStatus = prevStatus;
+        }
+      }
+      
+      syncQueue.push({ 
+        taskId: Date.now() + '_undo', 
+        rowNum: house.rowNum, 
+        status: prevStatus, 
+        note: "User Override Reversal Trigger",
+        statusType: trackType || 'flag' // Default to flag for backward compatibility
+      });
       localStorage.setItem('flagOpsSyncQueue', JSON.stringify(syncQueue));
       updateSyncPillDisplay();
       dismissUndoToast(); updateUI(); flushLocalOfflineQueueToServer();
@@ -797,7 +1099,7 @@
       const note = document.getElementById('custom-issue-text').value.trim(); 
       closeIssueDrawer(); 
       if (navigator.vibrate) navigator.vibrate(60);
-      markStatus('Skipped/Issue', note || "Flag skipped.", false); 
+      markStatus(STATUS.SKIPPED, note || "Flag skipped.", false); 
       setTimeout(() => { if (currentIndex < activeFilteredRoute.length) nextHouse(); }, 200); 
     }
 
@@ -821,6 +1123,26 @@
       card.addEventListener('touchmove', e => { moved = true; }, { passive: true });
       card.addEventListener('touchend', e => { if (!moved) return; const dx = e.changedTouches[0].clientX - startX; const dy = e.changedTouches[0].clientY - startY; if (Math.abs(dx) > Math.abs(dy) * 1.5 && Math.abs(dx) > 40) { if (dx < 0) nextHouse(); else prevHouse(); } }, { passive: true });
     })();
+
+    // OFFLINE MODE: Network status monitoring
+    window.addEventListener('online', () => {
+      document.getElementById('offline-indicator').style.display = 'none';
+      document.getElementById('sync-pill').style.display = '';
+      console.log('Network restored - syncing queued changes...');
+      flushLocalOfflineQueueToServer();
+    });
+    
+    window.addEventListener('offline', () => {
+      document.getElementById('offline-indicator').style.display = '';
+      document.getElementById('sync-pill').style.display = 'none';
+      console.log('Offline mode - changes will queue locally');
+    });
+    
+    // Check initial network status
+    if (!navigator.onLine) {
+      document.getElementById('offline-indicator').style.display = '';
+      document.getElementById('sync-pill').style.display = 'none';
+    }
   </script>
 </body>
 </html>
