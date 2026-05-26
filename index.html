@@ -497,6 +497,43 @@
       UNDO_TIMEOUT_MS: 7000
     };
 
+    // ─────────────────────────────────────────────────────────
+    // CORS FIX: JSONP helper for Google Apps Script API calls.
+    // fetch() is blocked by CORS when called from GitHub Pages.
+    // GAS supports ?callback=fnName which wraps the JSON response
+    // in a JS function call — bypassing CORS entirely.
+    // ─────────────────────────────────────────────────────────
+    function gasRequest(params) {
+      return new Promise(function(resolve, reject) {
+        var cbName = '_gasCb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        var timeout = setTimeout(function() {
+          delete window[cbName];
+          if (script.parentNode) script.parentNode.removeChild(script);
+          reject(new Error('Request timed out'));
+        }, 15000);
+
+        window[cbName] = function(data) {
+          clearTimeout(timeout);
+          delete window[cbName];
+          if (script.parentNode) script.parentNode.removeChild(script);
+          resolve(data);
+        };
+
+        var qs = Object.keys(params)
+          .map(function(k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); })
+          .join('&');
+
+        var script = document.createElement('script');
+        script.src = API_URL + '?' + qs + '&callback=' + cbName;
+        script.onerror = function() {
+          clearTimeout(timeout);
+          delete window[cbName];
+          reject(new Error('Script load failed — check API_URL'));
+        };
+        document.head.appendChild(script);
+      });
+    }
+
     let rawRouteData = [];
     let activeFilteredRoute = [];
     let currentIndex = 0;
@@ -559,29 +596,28 @@
       const inputPass = document.getElementById('auth-password').value;
       const errorMsg = document.getElementById('auth-error-msg');
       
-      // SECURITY: Server-side authentication instead of client-side password check
       showLoading('Verifying credentials...');
       
-      google.script.run
-        .withSuccessHandler(function(isValid) {
+      gasRequest({ action: 'authenticate', password: inputPass })
+        .then(function(res) {
           hideLoading();
-          if (isValid) {
+          if (res.success && res.data === true) {
             errorMsg.style.display = 'none';
             sessionStorage.setItem('flagOpsAuthToken', 'verified_session');
             document.getElementById('auth-screen').style.display = 'none';
             launchOperationalDashboard();
           } else {
             errorMsg.style.display = 'block';
+            errorMsg.textContent = '❌ Incorrect password';
             document.getElementById('auth-password').value = '';
           }
         })
-        .withFailureHandler(function(error) {
+        .catch(function(error) {
           hideLoading();
-          errorMsg.textContent = '❌ Authentication service unavailable';
+          errorMsg.textContent = '❌ Authentication service unavailable — check API_URL';
           errorMsg.style.display = 'block';
           console.error('Auth error:', error);
-        })
-        .authenticateUser(inputPass);
+        });
     }
 
     function launchOperationalDashboard() {
@@ -595,8 +631,7 @@
       if (syncIntervalId) clearInterval(syncIntervalId);
       syncIntervalId = setInterval(flushLocalOfflineQueueToServer, CONFIG.SYNC_INTERVAL_MS);
 
-      fetch(`${API_URL}?action=getRouteNames`)
-        .then(res => res.json())
+      gasRequest({ action: 'getRouteNames' })
         .then(res => {
           hideLoading();
           if (res.success) populateDropdown(res.data);
@@ -684,8 +719,7 @@
       if (!selectedSector) { showError("Select execution neighborhood segment."); return; }
       showLoading('Pulling live ledger states...');
 
-      fetch(`${API_URL}?action=getRouteData&route=${encodeURIComponent(selectedSector)}`)
-        .then(res => res.json())
+      gasRequest({ action: 'getRouteData', route: selectedSector })
         .then(res => {
           hideLoading();
           if (res.success) {
@@ -696,7 +730,6 @@
             }));
             executeSearchFilter();
             switchView('app-screen');
-            // Feature 3: Engage Wake lock upon entering active field deployment map
             requestWakeLock();
           } else {
             showError("Cloud error: " + res.error);
@@ -971,12 +1004,15 @@
     function flushLocalOfflineQueueToServer() {
       if (syncQueue.length === 0) return;
       const activeTask = syncQueue[0];
-      
-      // Default to 'flag' for backward compatibility with old queue items
       const statusType = activeTask.statusType || 'flag';
 
-      fetch(`${API_URL}?action=updateFlagStatus&rowNum=${activeTask.rowNum}&status=${encodeURIComponent(activeTask.status)}&note=${encodeURIComponent(activeTask.note)}&statusType=${statusType}`)
-        .then(res => res.json())
+      gasRequest({
+        action: 'updateFlagStatus',
+        rowNum: activeTask.rowNum,
+        status: activeTask.status,
+        note: activeTask.note || '',
+        statusType: statusType
+      })
         .then(res => {
           if (res && res.success) {
             syncQueue = syncQueue.filter(t => t.taskId !== activeTask.taskId);
@@ -1029,8 +1065,7 @@
         paid 
       };
 
-      fetch(`${API_URL}?action=addNewCustomer&payload=${encodeURIComponent(JSON.stringify(payload))}`)
-        .then(res => res.json())
+      gasRequest({ action: 'addNewCustomer', payload: JSON.stringify(payload) })
         .then(res => {
           hideLoading();
           if (res.success) {
